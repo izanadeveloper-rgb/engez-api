@@ -4,7 +4,7 @@
 import { generateWAMessageFromContent } from '@whiskeysockets/baileys'
 import axios from 'axios'
 
-const API_BASE = 'https://engez/api/v1/download/all'
+const API_BASE = 'https://engez.a7a.online/api/v1/download/all'
 const SELECT_SEPARATOR = '|'
 const CACHE_TTL_MS = 3 * 60 * 1000
 
