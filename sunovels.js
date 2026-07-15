@@ -5,7 +5,7 @@ import axios from 'axios';
 import fs from 'fs';
 import { generateWAMessageFromContent, prepareWAMessageMedia } from '@whiskeysockets/baileys';
 
-const API_BASE = 'https://engez.spcfy.eu/api/v1/reading/sunovels';
+const API_BASE = 'https://engez.a7a.online/api/v1/reading/sunovels';
 const FALLBACK_IMAGE = 'https://files.catbox.moe/z5zh28.jpg';
 
 global.sunovelsSessions = global.sunovelsSessions || {};
