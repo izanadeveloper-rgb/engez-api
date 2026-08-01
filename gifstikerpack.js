@@ -1,4 +1,4 @@
-// كود حزمة ستيكر متحرك
+// كود بحث حزم متحركه 
 // https://whatsapp.com/channel/0029Vb7Nq294Y9le1aAcTE0D
 // تابعو القناة هننشر اكواد تانية "izana,uncel shawaza" 
 import axios from 'axios'
@@ -44,16 +44,16 @@ function isAnimatedWebP(buffer) {
     return false
 }
 
-async function imageToWebp(buffer) {
+async function gifToWebp(buffer) {
     const sharpMod = await import('sharp').catch(() => null)
     if (!sharpMod?.default) throw new Error('Install sharp first: npm i sharp')
 
-    return await sharpMod.default(buffer)
+    return await sharpMod.default(buffer, { animated: true })
         .resize(512, 512, {
             fit: 'inside',
             withoutEnlargement: true
         })
-        .webp({ quality: 80 })
+        .webp({ quality: 80, effort: 6 })
         .toBuffer()
 }
 
@@ -277,15 +277,19 @@ async function sendCustomStickerPack(conn, m, pack, meta = {}) {
     )
 }
 
-async function searchPins(query) {
+async function searchGif(query) {
     try {
-        const params = new URLSearchParams({ q: query })
-        const response = await axios.get(`${API_BASE}/search/pinimg?${params.toString()}`, {
+        const params = new URLSearchParams()
+        params.append('q', query)
+
+        const response = await axios.get(`${API_BASE}/tools/gif-search?${params.toString()}`, {
             timeout: 30000
         })
+
         if (!response.data?.success) {
             throw new Error(response.data?.error || 'فشل البحث')
         }
+
         return response.data.results || []
     } catch (error) {
         throw new Error(error.message || 'فشل الاتصال')
@@ -295,19 +299,19 @@ async function searchPins(query) {
 const handler = async (m, { conn, text }) => {
     if (!text) {
         return m.reply(
-            '📦 *حزمة ملصقات من Pinterest*\n\n' +
+            '📦 *حزمة ملصقات متحركة من GIFs*\n\n' +
             '📌 *الاستخدام:*\n' +
-            '• `.حزمة قطط`\n' +
-            '• `.باك غوجو`\n\n' +
+            '• `.حزمة-جيف itachi`\n' +
+            '• `.باك-جيف ناروتو`\n\n' +
             '📌 *مثال:*\n' +
-            '`.حزمة انمي`'
+            '`.حزمة-جيف انمي`'
         )
     }
 
     await conn.sendMessage(m.chat, { react: { text: '📦', key: m.key } })
 
     try {
-        const results = await searchPins(text)
+        const results = await searchGif(text)
 
         if (!results.length) {
             await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
@@ -316,8 +320,8 @@ const handler = async (m, { conn, text }) => {
 
         const urls = [...new Set(
             results
-                .map(v => v.image)
-                .filter(Boolean)
+                .map(v => v.url)
+                .filter(url => url && url.startsWith('http'))
         )]
 
         if (urls.length < 5) {
@@ -333,7 +337,7 @@ const handler = async (m, { conn, text }) => {
 
         for (const url of chosen) {
             try {
-                const imgRes = await axios.get(url, {
+                const gifRes = await axios.get(url, {
                     responseType: 'arraybuffer',
                     timeout: 30000,
                     headers: {
@@ -341,31 +345,22 @@ const handler = async (m, { conn, text }) => {
                     }
                 })
 
-                let buffer = Buffer.from(imgRes.data)
+                let buffer = Buffer.from(gifRes.data)
 
-                if (isWebP(buffer)) {
-                    if (buffer.length > 0) {
-                        pack.push({
-                            buffer,
-                            ext: 'webp',
-                            mimetype: 'image/webp',
-                            isAnimated: isAnimatedWebP(buffer),
-                            isLottie: false,
-                        })
-                    }
-                } else {
-                    buffer = await imageToWebp(buffer)
+                if (buffer.length > 0) {
+                    // تحويل GIF إلى WebP متحرك
+                    const webpBuffer = await gifToWebp(buffer)
 
                     pack.push({
-                        buffer,
+                        buffer: webpBuffer,
                         ext: 'webp',
                         mimetype: 'image/webp',
-                        isAnimated: false,
+                        isAnimated: true,
                         isLottie: false,
                     })
                 }
             } catch (e) {
-                console.error('Image download/convert failed:', e?.message || e)
+                console.error('GIF download/convert failed:', e?.message || e)
             }
         }
 
@@ -375,7 +370,7 @@ const handler = async (m, { conn, text }) => {
         }
 
         await sendCustomStickerPack(conn, m, pack, {
-            name: `${text.toUpperCase()} STICKERS`,
+            name: `${text.toUpperCase()} GIF STICKERS`,
             publisher: 'izana',
             description: '◜⏤͟͟͞͞ 𝐑𝐀𝐆𝐍𝐀 ˖࣪⃟❄️ 𝐁𝐎𝐓◞•'
         })
@@ -389,8 +384,8 @@ const handler = async (m, { conn, text }) => {
     }
 }
 
-handler.help = ['حزمة <بحث>']
+handler.help = ['حزمة-جيف <بحث>']
 handler.tags = ['sticker']
-handler.command = /^(حزمة|pak|pack|باك|بك)$/i
+handler.command = /^(حزمة-جيف|باك-جيف|gif-pack|gifpack)$/i
 
-export default handler
+export default import
