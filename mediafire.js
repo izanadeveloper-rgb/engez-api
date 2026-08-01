@@ -1,3 +1,6 @@
+// كود تحميل من mediafire
+// https://whatsapp.com/channel/0029Vb7Nq294Y9le1aAcTE0D
+// تابعو القناة هننشر اكواد تانية "izana,uncel shawaza" 
 import axios from 'axios'
 import { fileTypeFromBuffer } from 'file-type'
 
